@@ -124,13 +124,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: 触发后端部署 (Render)
-        if: secrets.RENDER_DEPLOY_HOOK != ''
+      - name: 触发后端部署 (Railway)
+        # Railway 监听 GitHub 仓库 push 事件，会自动触发部署
+        # 如果需要手动触发，可以在 Railway 控制台配置 Deploy Hook
+        # 并将 Hook URL 添加到 GitHub Secrets 中 key 为 RAILWAY_DEPLOY_HOOK
+        if: ${{ secrets.RAILWAY_DEPLOY_HOOK != '' }}
         run: |
-          curl -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}" \
-            -H "Content-Type: application/json" \
-            --fail || echo "Render deploy hook not configured, skipping."
+          curl -s -X POST "${{ secrets.RAILWAY_DEPLOY_HOOK }}" \
+            --fail || echo "Railway deploy hook not configured, skipping."
         continue-on-error: true
 
       - name: 部署成功通知
-        run: echo "✅ 所有测试通过，部署流程已触发！"
+        run: echo "✅ 所有测试通过，Railway 部署流程已触发！"

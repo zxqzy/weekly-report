@@ -19,7 +19,7 @@
 - [x] 前端组件测试（20 个，Vitest + React Testing Library）
 - [x] Playwright E2E 测试配置及用例
 - [x] GitHub Actions CI/CD 工作流（后端测试 + 前端测试 + E2E + 自动部署）
-- [x] Render.com 后端部署配置（render.yaml）
+- [x] Railway 后端部署配置（railway.json）
 - [x] Vercel 前端部署配置（vercel.json）
 - [x] 环境变量模板（.env.example）
 - [x] .gitignore
@@ -31,10 +31,10 @@
 
 ### 高优先级（上线前必做）
 
-- [ ] **实际部署验证** — 将后端部署到 Render、前端部署到 Vercel，验证线上联调正常
-- [ ] **配置真实 AI API Key** — 在 Render 控制台填入 `AI_API_KEY`，验证 AI 生成周报功能
-- [ ] **配置 CORS_ORIGIN** — 后端环境变量中填入 Vercel 分配的前端域名，避免跨域报错
-- [ ] **配置 GitHub Secrets** — 在仓库 Settings → Secrets 中添加 `RENDER_DEPLOY_HOOK`，启用自动部署触发
+- [ ] **实际部署验证** — 将后端部署到 Railway、前端部署到 Vercel，验证线上联调正常
+- [ ] **配置真实 AI API Key** — 在 Railway 控制台填入 `AI_API_KEY`，验证 AI 生成周报功能
+- [ ] **配置 CORS_ORIGIN** — 后端 Railway 环境变量中填入 Vercel 分配的前端域名，避免跨域报错
+- [ ] **配置 GitHub Secrets** — 在仓库 Settings → Secrets 中添加 `RAILWAY_DEPLOY_HOOK`（可选）， Railway 默认已自动监听 push 进行部署
 - [ ] **运行 E2E 测试** — 本地启动前后端后，执行 `npm run test:e2e` 验证完整流程
 
 ### 中优先级（功能完善）
@@ -48,9 +48,9 @@
 
 ### 低优先级（锦上添花）
 
-- [ ] **数据库升级** — 将 SQLite 替换为 PostgreSQL（Render 提供免费 PostgreSQL），支持多用户并发
+- [ ] **数据库升级** — 将 SQLite 替换为 PostgreSQL（Railway 提供免费 PostgreSQL 插件），支持多用户并发
 - [ ] **监控与告警** — 集成 Sentry 捕获前端 JS 错误和后端异常
-- [ ] **SQLite 定期备份** — 编写 cron 脚本将 .db 文件定时上传到云存储（阿里云 OSS / S3）
+- [ ] **SQLite 定期备份** — 在 Railway 控制台配置 Cron Job，定时将 .db 文件上传到云存储（阿里云 OSS / S3）
 - [ ] **AI Prompt 优化** — 根据实际生成效果持续调整 prompt，提升周报质量
 - [ ] **历史事项搜索** — 支持按关键词搜索历史事项和周报
 - [ ] **暗色主题** — 添加 Dark Mode 切换
@@ -76,5 +76,5 @@ npm run test:e2e       # E2E 测试（需先启动前后端）
 
 ### 部署平台
 
-- 后端：https://render.com（免费 Web Service，冷启动约 30s）
-- 前端：https://vercel.com（免费，全球 CDN）
+- 后端：https://railway.app（每月 $5 免费额度，不会自动休眠）
+- 前端：https://vercel.com（完全免费，全球 CDN）

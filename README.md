@@ -35,7 +35,7 @@ weekly-report/
 │   │   ├── unit/               # 单元测试（aiService、dateHelper）
 │   │   └── integration/        # 集成测试（records API、reports API）
 │   ├── .env.example            # 环境变量模板
-│   └── render.yaml             # Render.com 部署配置
+│   └── railway.json            # Railway 部署配置
 │
 ├── frontend/                   # React + Vite 前端
 │   ├── src/
@@ -139,25 +139,35 @@ npm run test:e2e
 
 ## 部署上线
 
-### 后端 → Render.com（免费）
+### 后端 → Railway（免费额度每月 $5）
 
-1. 在 [Render.com](https://render.com) 创建 **Web Service**，连接 GitHub 仓库
-2. 设置：
-   - **Root Directory**: `backend`
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
-3. 在 Environment 面板添加 `AI_API_KEY`、`CORS_ORIGIN`（填前端域名）等环境变量
-4. 部署后获得 `https://your-app.onrender.com`
-
-### 前端 → Vercel（免费）
-
-1. 在 [Vercel](https://vercel.com) 导入 GitHub 仓库
-2. 设置 **Root Directory** 为 `frontend`
-3. 添加环境变量：
+1. 访问 [railway.app](https://railway.app)，用 **GitHub 账号** 登录（无需信用卡注册）
+2. 点击 **New Project → Deploy from GitHub repo**，选择 `weekly-report` 仓库
+3. 选择 `backend` 目录作为服务根目录
+4. 在 **Variables** 面板添加环境变量：
    ```
-   VITE_API_BASE_URL=https://your-app.onrender.com/api
+   NODE_ENV=production
+   PORT=3001
+   AI_API_KEY=your_api_key_here
+   AI_BASE_URL=https://open.bigmodel.cn/api/paas/v4
+   AI_MODEL=glm-4-flash
+   CORS_ORIGIN=https://your-app.vercel.app
    ```
-4. 部署后获得 `https://your-app.vercel.app`
+5. 部署完成后，在 **Settings → Domains** 生成域名，格式为 `https://your-app.up.railway.app`
+
+> ⚠️ **注意**：Railway 每月有 $5 免费额度，本项目预计用 $2-3/月，完全在免费范围内。超额才会收费，需要绑定信用卡（不会扣钱，仅防滥用）。
+
+### 前端 → Vercel（完全免费）
+
+1. 访问 [vercel.com](https://vercel.com)，用 **GitHub 账号** 登录
+2. 点击 **New Project**，导入 `weekly-report` 仓库
+3. 设置 **Root Directory** 为 `frontend`
+4. 添加环境变量：
+   ```
+   VITE_API_BASE_URL=https://your-app.up.railway.app/api
+   ```
+5. 部署后获得 `https://your-app.vercel.app`
+6. 将此域名回填到 Railway 后端的 `CORS_ORIGIN` 环境变量中
 
 ### CI/CD（自动化）
 
@@ -165,9 +175,9 @@ npm run test:e2e
 1. 运行后端单元 + 集成测试
 2. 运行前端组件测试 + 构建验证
 3. 运行 E2E 测试
-4. 全部通过后触发 Render 自动部署
+4. 全部通过后触发 Railway 自动部署
 
-在仓库 Settings → Secrets 中添加 `RENDER_DEPLOY_HOOK` 即可启用自动部署触发。
+Railway 默认会监听 GitHub 仓库的 push 事件自动部署。如需手动触发，在仓库 Settings → Secrets 中添加 `RAILWAY_DEPLOY_HOOK`。
 
 ---
 
