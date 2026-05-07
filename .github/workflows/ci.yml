@@ -125,14 +125,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: 触发后端部署 (Railway)
-        # Railway 监听 GitHub 仓库 push 事件，会自动触发部署
-        # 如果需要手动触发，可以在 Railway 控制台配置 Deploy Hook
-        # 并将 Hook URL 添加到 GitHub Secrets 中 key 为 RAILWAY_DEPLOY_HOOK
-        if: ${{ secrets.RAILWAY_DEPLOY_HOOK != '' }}
-        run: |
-          curl -s -X POST "${{ secrets.RAILWAY_DEPLOY_HOOK }}" \
-            --fail || echo "Railway deploy hook not configured, skipping."
-        continue-on-error: true
+        # Railway 已连接 GitHub 仓库，push 后会自动触发部署，此步骤仅作确认通知
+        run: echo "🚀 代码已推送到 main 分支，Railway 将自动触发部署"
 
       - name: 部署成功通知
         run: echo "✅ 所有测试通过，Railway 部署流程已触发！"
