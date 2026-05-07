@@ -5,7 +5,7 @@
     "buildCommand": "npm install && npm run build"
   },
   "deploy": {
-    "startCommand": "vite preview --host 0.0.0.0 --port ${PORT:-3000} --allowed-hosts all",
+    "startCommand": "serve -s dist -l ${PORT:-3000}",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
