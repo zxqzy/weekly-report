@@ -13,6 +13,33 @@
  */
 import { test, expect } from '@playwright/test';
 
+// 获取今天日期字符串 YYYY-MM-DD
+function getTodayStr() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  return `${year}-${mm}-${dd}`;
+}
+
+// 每次生成唯一内容，避免历史数据干扰
+function uniqueText(prefix = '测试事项') {
+  return `${prefix}_${Date.now()}`;
+}
+
+// 添加一条事项的辅助函数
+async function addRecord(page, content) {
+  const todayStr = getTodayStr();
+  const addBtn = page.getByTestId(`add-record-btn-${todayStr}`);
+  await addBtn.click();
+  const input = page.getByTestId('new-record-input');
+  await expect(input).toBeVisible();
+  await input.fill(content);
+  await page.getByTestId('submit-record-btn').click();
+  // 等待新增的这条出现（用精确文本匹配）
+  await expect(page.getByText(content)).toBeVisible({ timeout: 5000 });
+}
+
 // 测试前导航到首页
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
@@ -44,53 +71,27 @@ test.describe('页面加载', () => {
 
 test.describe('事项管理', () => {
   test('应能添加工作事项', async ({ page }) => {
-    // 获取今天的日期，找到对应的添加按钮
-    const today = new Date();
-    const year = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const todayStr = `${year}-${mm}-${dd}`;
-
-    // 点击今天的"添加"按钮
-    const addBtn = page.getByTestId(`add-record-btn-${todayStr}`);
-    await addBtn.click();
-
-    // 输入内容
-    const input = page.getByTestId('new-record-input');
-    await expect(input).toBeVisible();
-    await input.fill('完成用户模块开发');
-
-    // 提交
-    await page.getByTestId('submit-record-btn').click();
-
-    // 验证事项出现在列表中
-    await expect(page.getByText('完成用户模块开发')).toBeVisible({ timeout: 5000 });
+    const content = uniqueText('完成用户模块开发');
+    await addRecord(page, content);
 
     // 验证 Toast 成功通知
     await expect(page.getByTestId('toast-success')).toBeVisible({ timeout: 3000 });
   });
 
   test('按 Enter 键应提交事项', async ({ page }) => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const todayStr = `${year}-${mm}-${dd}`;
+    const content = uniqueText('按Enter测试事项');
+    const todayStr = getTodayStr();
 
     await page.getByTestId(`add-record-btn-${todayStr}`).click();
     const input = page.getByTestId('new-record-input');
-    await input.fill('按 Enter 测试事项');
+    await input.fill(content);
     await input.press('Enter');
 
-    await expect(page.getByText('按 Enter 测试事项')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(content)).toBeVisible({ timeout: 5000 });
   });
 
   test('空内容不能提交', async ({ page }) => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const todayStr = `${year}-${mm}-${dd}`;
+    const todayStr = getTodayStr();
 
     await page.getByTestId(`add-record-btn-${todayStr}`).click();
     const submitBtn = page.getByTestId('submit-record-btn');
@@ -99,18 +100,12 @@ test.describe('事项管理', () => {
 });
 
 test.describe('周报生成', () => {
-  test.beforeEach(async ({ page }) => {
-    // 先添加一条事项（确保有数据）
-    const today = new Date();
-    const year = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const todayStr = `${year}-${mm}-${dd}`;
+  // 每个周报测试前都添加一条唯一事项
+  let recordContent;
 
-    await page.getByTestId(`add-record-btn-${todayStr}`).click();
-    await page.getByTestId('new-record-input').fill('准备周报测试的工作事项');
-    await page.getByTestId('submit-record-btn').click();
-    await expect(page.getByText('准备周报测试的工作事项')).toBeVisible({ timeout: 5000 });
+  test.beforeEach(async ({ page }) => {
+    recordContent = uniqueText('周报测试事项');
+    await addRecord(page, recordContent);
 
     // 切换到周报 Tab
     await page.getByTestId('tab-report').click();
@@ -151,13 +146,14 @@ test.describe('周报生成', () => {
     const textarea = page.getByTestId('report-edit-textarea');
     await expect(textarea).toBeVisible();
 
-    // 修改内容
+    // 修改内容（用唯一标识避免和历史周报内容冲突）
+    const editContent = uniqueText('E2E编辑内容');
     await textarea.clear();
-    await textarea.fill('## 本周工作\n- 完成了 E2E 测试\n\n## 下周计划\n- 继续优化');
+    await textarea.fill(`## 本周工作\n- ${editContent}\n\n## 下周计划\n- 继续优化`);
 
     // 保存
     await page.getByTestId('save-report-btn').click();
-    await expect(page.getByText('完成了 E2E 测试')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(editContent)).toBeVisible({ timeout: 5000 });
     await expect(page.getByTestId('toast-success')).toBeVisible({ timeout: 3000 });
   });
 });
