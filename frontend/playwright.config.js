@@ -12,7 +12,9 @@ export default defineConfig({
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    // AI 接口在 E2E 测试中使用 mock（不需要真实 key）
+    // CI 环境无头运行，本地开发显示真实浏览器窗口 + 慢动作方便观察
+    headless: !!process.env.CI,
+    slowMo: process.env.CI ? 0 : 500,
   },
 
   projects: [

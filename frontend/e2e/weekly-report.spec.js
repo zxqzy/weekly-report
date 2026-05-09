@@ -107,6 +107,9 @@ test.describe('周报生成', () => {
     recordContent = uniqueText('周报测试事项');
     await addRecord(page, recordContent);
 
+    // 等待「事项添加成功」Toast 消失，避免和后续周报 Toast 冲突
+    await expect(page.getByTestId('toast-success')).toBeHidden({ timeout: 5000 });
+
     // 切换到周报 Tab
     await page.getByTestId('tab-report').click();
     await expect(page.getByTestId('generate-report-btn')).toBeVisible();
@@ -124,8 +127,8 @@ test.describe('周报生成', () => {
     await expect(page.getByTestId('report-preview')).toBeVisible({ timeout: 10000 });
     await expect(page.getByText(/本周工作/)).toBeVisible({ timeout: 10000 });
 
-    // 验证成功 Toast
-    await expect(page.getByTestId('toast-success')).toBeVisible({ timeout: 3000 });
+    // 验证成功 Toast（精确匹配文本，避免和其他 Toast 冲突）
+    await expect(page.getByText('周报生成成功！')).toBeVisible({ timeout: 3000 });
   });
 
   test('生成周报后应显示编辑和复制按钮', async ({ page }) => {
@@ -154,7 +157,7 @@ test.describe('周报生成', () => {
     // 保存
     await page.getByTestId('save-report-btn').click();
     await expect(page.getByText(editContent)).toBeVisible({ timeout: 5000 });
-    await expect(page.getByTestId('toast-success')).toBeVisible({ timeout: 3000 });
+    await expect(page.getByText('周报保存成功！')).toBeVisible({ timeout: 3000 });
   });
 });
 
