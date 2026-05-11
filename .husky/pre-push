@@ -1,0 +1,25 @@
+# 禁止直接 push 到 main 分支
+current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
+if [ "$current_branch" = "main" ]; then
+  echo "❌ 禁止直接 push 到 main 分支，请创建 feature 分支并提 PR"
+  exit 1
+fi
+
+# push 前跑完整单元测试
+echo "🔍 running backend tests before push..."
+cd backend && npm test --silent
+if [ $? -ne 0 ]; then
+  echo "❌ 后端测试失败，push 被拒绝"
+  exit 1
+fi
+cd ..
+
+echo "🔍 running frontend tests before push..."
+cd frontend && npm run test:unit --silent
+if [ $? -ne 0 ]; then
+  echo "❌ 前端测试失败，push 被拒绝"
+  exit 1
+fi
+cd ..
+
+echo "✅ 所有测试通过，push 继续"

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "AI 周报系统 - Monorepo",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
@@ -11,6 +12,26 @@
     "test:frontend": "cd frontend && npm run test:unit",
     "test:e2e": "cd frontend && npm run test:e2e",
     "test:all": "npm run test:backend && npm run test:frontend",
-    "build:frontend": "cd frontend && npm run build"
+    "build:frontend": "cd frontend && npm run build",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "frontend/src/**/*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "backend/src/**/*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
+    "husky": "^9.1.4",
+    "lint-staged": "^15.2.7"
   }
 }
