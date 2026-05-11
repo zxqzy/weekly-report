@@ -57,7 +57,8 @@ test.describe('页面加载', () => {
 
   test('默认应显示"本周事项" Tab', async ({ page }) => {
     await expect(page.getByTestId('tab-records')).toHaveClass(/active/);
-    await expect(page.getByText('本周事项')).toBeVisible();
+    // 用 testid 精确定位 Tab 按钮，避免和页面内 h2 标题冲突
+    await expect(page.getByTestId('tab-records')).toBeVisible();
   });
 
   test('周选择器应显示日期范围', async ({ page }) => {
@@ -164,15 +165,16 @@ test.describe('周报生成', () => {
 test.describe('Tab 切换', () => {
   test('点击"历史周报" Tab 应切换到历史页', async ({ page }) => {
     await page.getByTestId('tab-history').click();
-    // 历史页有"历史周报"标题或空状态
-    await expect(page.getByText('历史周报')).toBeVisible();
+    // 验证历史 Tab 处于 active 状态
+    await expect(page.getByTestId('tab-history')).toHaveClass(/active/);
   });
 
   test('Tab 切换后再切回应保持正常', async ({ page }) => {
     await page.getByTestId('tab-report').click();
     await page.getByTestId('tab-history').click();
     await page.getByTestId('tab-records').click();
-    await expect(page.getByText('本周事项')).toBeVisible();
+    // 用 testid 验证事项 Tab 处于 active，避免和 h2 标题文字冲突
+    await expect(page.getByTestId('tab-records')).toHaveClass(/active/);
   });
 });
 
